@@ -14,9 +14,7 @@ class qPhotogrammetryDlg : public QDialog, public Ui::qPhotogrammetryDlg
 
 public:
     QString pathToFolder = QString();
-    QString pathToOutputFolder = QString();
-    QString pathToOpenMVGRelease = QString();
-
+    QJsonObject setting_json_obj;
     explicit qPhotogrammetryDlg(QWidget *parent = 0);
     ~qPhotogrammetryDlg();
 
@@ -24,9 +22,13 @@ public:
         return pathToFolder;
     }
 
+
+    void closeSession();
+
 private slots:
     void on_pushButton_clicked();
 
+    //void on_buttonBox_accepted();
     void on_buttonBox_accepted();
 
     void on_buttonBox_rejected();
@@ -45,8 +47,18 @@ private slots:
 
     QJsonObject get_georeference_settings();
 
+    void on_tabWidget_destroyed();
+    void connectToHost();
+
 private:
     Ui::qPhotogrammetryDlg *ui;
+
+signals:
+    void get_connected();
+    void connected();
+    void get_disconnected();
+    void disconnected();
 };
 
 #endif // QPHOTOGRAMMETRYDLG_H
+

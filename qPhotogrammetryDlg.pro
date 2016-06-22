@@ -15,6 +15,7 @@ TEMPLATE = app
 SOURCES += main.cpp\
         qPhotogrammetryDlg.cpp
 
-HEADERS  += qPhotogrammetryDlg.h
+HEADERS  += qPhotogrammetryDlg.h \
+    socketstub.h
 
 FORMS    += qPhotogrammetryDlg.ui

@@ -17,7 +17,6 @@
 
 #include "qPhotogrammetry.h"
 #include "qPhotogrammetryDlg.h"
-//#include "qPhotogrammetryProgressDlg.h"
 //#include <mainwindow.h>
 
 
@@ -26,8 +25,6 @@
 #include <memory>
 #include <stdexcept>
 #include <string>
-
-
 
 //Qt
 #include <QtGui>
@@ -91,49 +88,18 @@ void qPhotogrammetry::doAction()
         qPhotogrammetryDlg phgmDlg(m_app->getMainWindow());
         //if (!phgmDlg.exec())
         //        return;
-        phgmDlg.exec();
 
+        phgmDlg.exec();
+        QJsonDocument saveDoc(phgmDlg.setting_json_obj);
         //QString folderPath = phgmDlg.getFolderPath();
         m_app->dispToConsole(phgmDlg.pathToFolder, ccMainAppInterface::STD_CONSOLE_MESSAGE);
-        m_app->dispToConsole(phgmDlg.pathToOutputFolder,ccMainAppInterface::STD_CONSOLE_MESSAGE);
-        /*
-        //std::string inputFolder = phgmDlg.pathToFolder.toStdString();
-        std::string inputFolder = "/home/array/Dokumenty/Gritworld/datasets/meadow_DJI";
-        //std::string outputFolder = phgmDlg.pathToOutputFolder.toStdString();
-        std::string outputFolder = "/home/array/Obrazy/dupa";
-        //std::string openMVGFolder = phgmDlg.pathToOpenMVGRelease.toStdString() + "/sparseReconstruction.py ";
-        std::string openMVGFolder = "/home/array/Dokumenty/Libs/openMVG/build/Linux-x86_64-RELEASE/sparseReconstruction.py ";
-        m_app->dispToConsole("Starting ", ccMainAppInterface::STD_CONSOLE_MESSAGE);
-
-        std::string cmd = "python " + openMVGFolder+  inputFolder + " " + outputFolder;
-         m_app->dispToConsole(QString::fromStdString(cmd), ccMainAppInterface::STD_CONSOLE_MESSAGE);
-        char buffer[128];
-        std::string result = "";
-        std::shared_ptr<FILE> pipe(popen(cmd.c_str(), "r"), pclose);
-        if (!pipe) throw std::runtime_error("popen() failed!");
-        while (!feof(pipe.get())) {
-            if (fgets(buffer, 128, pipe.get()) != NULL)
-                //result += buffer;
-                m_app->dispToConsole(QString::fromStdString(result), ccMainAppInterface::STD_CONSOLE_MESSAGE);
-        }
-        //addToDB
-        //robust_colorized.ply
-        //return result;
-        //QString outputText = QString::fromStdString(result);
-        //m_app->dispToConsole(outputText, ccMainAppInterface::STD_CONSOLE_MESSAGE);
-
-
-        //TODO list images in folder
-        //qPhotogrammetryProgressDlg phgmPrDlg(m_app->getActiveGLWindow());
-        //if (!phgmPrDlg.exec())
-        //    return;
-        */
+        m_app->dispToConsole(QString::fromLatin1(saveDoc.toJson().data()), ccMainAppInterface::STD_CONSOLE_MESSAGE);
+        //m_app->dispToConsole(phgmDlg.pathToOutputFolder,ccMainAppInterface::STD_CONSOLE_MESSAGE);
 
 	//This is how you can output messages
         m_app->dispToConsole("[qPhotogrammetry] Choose action",ccMainAppInterface::STD_CONSOLE_MESSAGE); //a standard message is displayed in the console
         m_app->dispToConsole("[qPhotogrammetry] Warning: photogrammetry is a time consuming process!",ccMainAppInterface::WRN_CONSOLE_MESSAGE); //a warning message is displayed in the console
-        //m_app->dispToConsole("Dummy plugin shouldn't be used as is!",ccMainAppInterface::ERR_CONSOLE_MESSAGE); //an error message is displayed in the console AND an error box will pop-up!
-
+        //m_app->dispToConsole("Dummy plugin shouldn't be used as is!",ccMainAppInterface::ERR_CONSOLE_MESSAGE); //an error message is displayed in the console AND an error box will pop-up!;
 
 
 

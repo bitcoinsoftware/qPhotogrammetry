@@ -1,15 +1,19 @@
-#include "qPhotogrammetryDlg.h"
+﻿#include "qPhotogrammetryDlg.h"
 #include <QFileDialog>
 #include <QJsonDocument>
 #include <iostream>
 #include <string>
-
+#include "SocketStub.h"
 
 qPhotogrammetryDlg::qPhotogrammetryDlg(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::qPhotogrammetryDlg)
 {
     ui->setupUi(this);
+    connect(this, SIGNAL(get_connected()), this, SLOT(connectToHost()));
+    //connect(t->socket(), SIGNAL(get_disconnected()), this, SLOT(sockDisconnected()));
+    //MyTelnetWidget mtw;
+    //ui->verticalLayout_6->addWidget(mtw);
 }
 
 qPhotogrammetryDlg::~qPhotogrammetryDlg()
@@ -138,6 +142,7 @@ QJsonObject qPhotogrammetryDlg::get_georeference_settings()
     return settings;
 }
 
+//void qPhotogrammetryDlg::on_buttonBox_accepted()
 void qPhotogrammetryDlg::on_buttonBox_accepted()
 {
     //if no folder with photos was choosen
@@ -149,8 +154,6 @@ void qPhotogrammetryDlg::on_buttonBox_accepted()
         ui->pushButton->update();
     }else
     {
-        QJsonObject setting_json_obj;
-
         //TODO read all widget states
         if (ui->radioButton->isChecked()){  //if only initial reconstruction choosen
             QJsonObject object
@@ -202,25 +205,36 @@ void qPhotogrammetryDlg::on_buttonBox_accepted()
             setting_json_obj.insert(QString("mesh_&_tex_params"),          get_mesh_tex_settings());
             setting_json_obj.insert(QString("georeference_params"),        get_georeference_settings());
         }
+        QJsonObject object
+        {
+            {"path_to_photo_folder", ui->label_11->text()},
+            {"domain", ui->lineEdit->text()},
+            {"telnet_port", ui->spinBox_4->value()},
+            {"ftp_port", ui->spinBox_10->value()}
+        };
+        //setting_json_obj.insert(QString("server"), object);
 
-        QFile saveFile(QStringLiteral("save.json"));
-        if (!saveFile.open(QIODevice::WriteOnly)) {
-            qWarning("Couldn't open save file.");
-            return;
-            }
-        QJsonDocument saveDoc(setting_json_obj);
+        //QFile saveFile(QStringLiteral("save.json"));
+        //if (!saveFile.open(QIODevice::WriteOnly)) {
+        //    qWarning("Couldn't open save file.");
+        //    return;
+        //    }
         //TODO send via whaever
-        saveFile.write(saveDoc.toJson());
+        //saveFile.write(saveDoc.toJson());
 
-        this->setResult(QDialog::Accepted); this->close(); //CLOSE WINDOW
+        //this->setResult(QDialog::Accepted); this->close(); //CLOSE WINDOW
+        //connectToHost(ui->lineEdit->text(), ui->spinBox_4->value());
+        emit get_connected();
     }
+    //QJsonDocument saveDoc(setting_json_obj);
+    //QString strJson(saveDoc.toJson());
+    //return saveDoc.toJson();
 }
 
 void qPhotogrammetryDlg::on_buttonBox_rejected()
 {
     this->setResult(QDialog::Rejected);this->close();
 }
-
 
 void qPhotogrammetryDlg::on_comboBox_currentIndexChanged(const QString &arg1)
 {
@@ -298,4 +312,35 @@ void qPhotogrammetryDlg::on_comboBox_currentIndexChanged(const QString &arg1)
        //texturing
             ui->comboBox_10->setCurrentIndex(1);
     }
+}
+
+void qPhotogrammetryDlg::connectToHost()
+{
+    QString domain = QString(ui->lineEdit->text());
+    QString port = QString::number(ui->spinBox_4->value());
+    ui->plainTextEdit->insertPlainText(QString("Connecting to :")+ domain + QString(" On port :") + port + QString("..."));
+
+    SocketStub ss(domain.toStdString(), port.toStdString());
+    if (ss.status == -1){
+        ui->plainTextEdit->insertPlainText(QString("\nSocket status equal -1. Error."));
+    }
+    else{
+        ui->plainTextEdit->insertPlainText(QString("\nConected to server, now sending message..."));
+        int buffLen = 1000;
+        //char response[buffLen];
+        std::string response(ss.send_command(setting_json_obj, buffLen));
+        ui->plainTextEdit->insertPlainText(QString::fromStdString(response));
+        ss.close_socket();
+        ui->plainTextEdit->insertPlainText("/nclosed");
+    }
+}
+
+void qPhotogrammetryDlg::closeSession()
+{
+
+}
+
+void qPhotogrammetryDlg::on_tabWidget_destroyed()
+{
+
 }

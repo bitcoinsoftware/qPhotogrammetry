@@ -1,22 +1,22 @@
 cmake_minimum_required(VERSION 3.0)
 
-#REPLACE ALL 'DUMMY' OCCURENCES BY YOUR PLUGIN NAME
-#AND ADAPT THE CODE BELOW TO YOUR OWN NEEDS!
-
 option( INSTALL_QPHOTOGRAMMETRY_PLUGIN "Check to install QPHOTOGRAMMETRY plugin" OFF )
 
 # CloudCompare 'qPhotogrammetry' plugin
 if (INSTALL_QPHOTOGRAMMETRY_PLUGIN)
+    add_subdirectory (SocketStub)
+
     project( QPHOTOGRAMMETRY_PLUGIN )
+
+	find_package( OpenGL REQUIRED )
+	if( NOT OPENGL_FOUND )
+		message( SEND_ERROR "OpenGL required, but not found with 'find_package()'" )
+	endif()
     
-    #load necessary libraries (see qPCV for an example)
-    #add_subdirectory (LIB1)
-    
-    #if the plugin is an 'OpenGL filter', uncomment the line below
-    #set( CC_OPENGL_FILTER ON BOOL)
     include( ../CMakePluginTpl.cmake )
-    
-    #set dependencies to necessary libraries (see qPCV for an example)
-    #target_link_libraries( ${PROJECT_NAME} LIB1 )
-    #include_directories( ${LIB1_INCLUDE_DIR} )
+
+    include_directories( ${SOCKETSTUB_LIB_SOURCE_DIR} )
+
+    target_link_libraries( ${PROJECT_NAME} SOCKETSTUB_LIB )
+
 endif()
